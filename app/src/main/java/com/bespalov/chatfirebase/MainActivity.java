@@ -14,6 +14,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,10 +31,16 @@ public class MainActivity extends AppCompatActivity {
 
     private String userName;
 
+    FirebaseDatabase database;
+    DatabaseReference messagesDataBaseReference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        database = FirebaseDatabase.getInstance("https://message-1c328.firebaseio.com/");
+        messagesDataBaseReference = database.getReference().child("messeges");
+        messagesDataBaseReference.setValue("Hello world");
         userName = "defaultUser";
         messageListView = findViewById(R.id.messageListView);
         progressBar = findViewById(R.id.progressBar);
