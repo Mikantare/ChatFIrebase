@@ -1,42 +1,33 @@
 {
   "project_info": {
-    "project_number": "492479748659",
-    "firebase_url": "https://message-1c328.firebaseio.com",
-    "project_id": "message-1c328",
-    "storage_bucket": "message-1c328.appspot.com"
+    "project_number": "836638136328",
+    "project_id": "messanger-f4ea2",
+    "storage_bucket": "messanger-f4ea2.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:492479748659:android:53ea474c0707c562bae146",
+        "mobilesdk_app_id": "1:836638136328:android:506941052f9e76d9f359bd",
         "android_client_info": {
           "package_name": "com.bespalov.chatfirebase"
         }
       },
       "oauth_client": [
         {
-          "client_id": "492479748659-tucnai549n9tfr9klsofj00emf186278.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.bespalov.chatfirebase",
-            "certificate_hash": "9250f94fa18b07585d36add3f6bddf44ee684fcc"
-          }
-        },
-        {
-          "client_id": "492479748659-871buiuq9ij184d5deb2rjqmde1j09s5.apps.googleusercontent.com",
+          "client_id": "836638136328-56co3dt0o5slejlk1uilbldi395e85rt.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAXkdqyU4w7NasnEB-y8_kteMWsZMi0pzY"
+          "current_key": "AIzaSyAD-37-2MHcpyoAgUx1keZ8mbJfcwXCJjA"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "492479748659-871buiuq9ij184d5deb2rjqmde1j09s5.apps.googleusercontent.com",
+              "client_id": "836638136328-56co3dt0o5slejlk1uilbldi395e85rt.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

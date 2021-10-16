@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        database = FirebaseDatabase.getInstance("https://message-1c328.firebaseio.com/");
+        database = FirebaseDatabase.getInstance();
         messagesDataBaseReference = database.getReference().child("messeges");
         messagesDataBaseReference.setValue("Hello world");
         userName = "defaultUser";
