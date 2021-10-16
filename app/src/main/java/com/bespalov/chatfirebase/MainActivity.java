@@ -1,5 +1,7 @@
 package com.bespalov.chatfirebase;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
@@ -14,6 +16,9 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -34,14 +39,16 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase database;
     DatabaseReference messagesDataBaseReference;
 
+    ChildEventListener messagesChildEventListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         database = FirebaseDatabase.getInstance();
         messagesDataBaseReference = database.getReference().child("messeges");
-        messagesDataBaseReference.setValue("Hello world");
-        userName = "defaultUser";
+        userName = "default name";
+
         messageListView = findViewById(R.id.messageListView);
         progressBar = findViewById(R.id.progressBar);
         sendMessageButtont = findViewById(R.id.sendMessageButtont);
@@ -77,6 +84,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String text = messageEditText.getText().toString().trim();
+                Message message = new Message();
+                message.setText(text);
+                message.setName(userName);
+                message.setImageUrl(null);
+                messagesDataBaseReference.push().setValue(message);
                 messageEditText.setText("");
             }
         });
@@ -87,5 +99,33 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+        messagesChildEventListener = new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                Message message = snapshot.getValue(Message.class);
+                adapter.add(message);
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        messagesDataBaseReference.addChildEventListener(messagesChildEventListener);
     }
 }
