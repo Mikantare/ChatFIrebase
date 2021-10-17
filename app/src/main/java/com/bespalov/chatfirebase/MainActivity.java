@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -26,6 +27,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference usersDataBaseReference;
     ChildEventListener usersChildEventListener;
 
+    FirebaseStorage storage;
+    StorageReference imageStorageRef;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         messagesDataBaseReference = database.getReference().child("messeges");
         usersDataBaseReference = database.getReference().child("users");
+        storage = FirebaseStorage.getInstance();
+        imageStorageRef = storage.getReference().child("chat_images");
 
         Intent intent = getIntent();
         if (intent != null) {
@@ -111,9 +122,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intentToImage = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/jpeg");
-                intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intent,"choose an image"), RC_IMAGE_PICKER);
+                intentToImage.setType("image/jpeg");
+                intentToImage.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+                startActivityForResult(Intent.createChooser(intentToImage,"choose an image"), RC_IMAGE_PICKER);
             }
         });
         usersChildEventListener = new ChildEventListener() {
@@ -193,6 +204,16 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == RC_IMAGE_PICKER && requestCode == RESULT_OK) {
+            Uri selectImageUri = data.getData();
+            StorageReference imageRef = imageStorageRef.child(selectImageUri.getLastPathSegment());
+            UploadTask uploadTask = imageRef.putFile(selectImageUri);
         }
     }
 }
