@@ -17,10 +17,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -34,7 +36,7 @@ import com.google.firebase.storage.UploadTask;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity {
 
     private ListView messageListView;
     private MessageAdapter adapter;
@@ -61,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_chat);
         database = FirebaseDatabase.getInstance();
         messagesDataBaseReference = database.getReference().child("messeges");
         usersDataBaseReference = database.getReference().child("users");
@@ -200,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.sing_out:
                 FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(MainActivity.this, SigninActivity.class));
+                startActivity(new Intent(ChatActivity.this, SigninActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -210,10 +212,36 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_IMAGE_PICKER && requestCode == RESULT_OK) {
+        if (requestCode == RC_IMAGE_PICKER && resultCode == RESULT_OK) {
             Uri selectImageUri = data.getData();
-            StorageReference imageRef = imageStorageRef.child(selectImageUri.getLastPathSegment());
+           final StorageReference imageRef = imageStorageRef.child(selectImageUri.getLastPathSegment());
             UploadTask uploadTask = imageRef.putFile(selectImageUri);
+
+            Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+
+                    // Continue with the task to get the download URL
+                    return imageRef.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        Message message = new Message();
+                        message.setImageUrl(downloadUri.toString());
+                        message.setName(userName);
+                        messagesDataBaseReference.push().setValue(message);
+                    } else {
+                        // Handle failures
+                        // ...
+                    }
+                }
+            });
         }
     }
 }
