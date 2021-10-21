@@ -5,5 +5,9 @@
         android:id="@+id/sing_out"
         android:title="Sign Out"
         app:showAsAction="never"/>
+    <item android:title="add user photo"
+        android:id="@+id/add_user_photo"
+        app:showAsAction="never"
+        />
 
 </menu>

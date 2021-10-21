@@ -24,7 +24,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         this.users = users;
     }
 
+    public UserAdapter(OnUserClickListener listener) {
+    }
+
     public void setOnUserClickListener(OnUserClickListener listener) {
+        this.listener = listener;
 
     }
 
@@ -38,7 +42,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
     User currentUser = users.get(position);
-    holder.avatarImage.setImageResource(currentUser.getAvatarMoskUpResource());
+    holder.avatarImageView.setImageResource(currentUser.getAvatarMoskUpResource());
     holder.userNameTextView.setText(currentUser.getName());
 
     }
@@ -50,12 +54,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     public static class UserViewHolder extends RecyclerView.ViewHolder {
 
-        public ImageView avatarImage;
+        public ImageView avatarImageView;
         public TextView userNameTextView;
 
         public UserViewHolder(@NonNull View itemView, final OnUserClickListener listener) {
             super(itemView);
-            avatarImage = itemView.findViewById(R.id.avatarImage);
+            avatarImageView = itemView.findViewById(R.id.avatarImageView);
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
 
             itemView.setOnClickListener(new View.OnClickListener() {

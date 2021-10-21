@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -49,33 +51,37 @@ public class ChatActivity extends AppCompatActivity {
 
     private static final int RC_IMAGE_PICKER = 123;
 
-    FirebaseDatabase database;
-    DatabaseReference messagesDataBaseReference;
-    ChildEventListener messagesChildEventListener;
-    DatabaseReference usersDataBaseReference;
-    ChildEventListener usersChildEventListener;
+    private FirebaseAuth auth;
+    private FirebaseDatabase database;
+    private DatabaseReference messagesDataBaseReference;
+    private ChildEventListener messagesChildEventListener;
+    private DatabaseReference usersDataBaseReference;
+    private ChildEventListener usersChildEventListener;
 
-    FirebaseStorage storage;
-    StorageReference imageStorageRef;
+    private FirebaseStorage storage;
+    private StorageReference imageStorageRef;
 
-
+    private String recipientUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+        Intent intent = getIntent();
+        if (intent != null) {
+            recipientUserId = intent.getStringExtra("recipientUserId");
+            userName = intent.getStringExtra("userName");
+        } else {
+            userName = "default name";
+        }
+        auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         messagesDataBaseReference = database.getReference().child("messeges");
         usersDataBaseReference = database.getReference().child("users");
         storage = FirebaseStorage.getInstance();
         imageStorageRef = storage.getReference().child("chat_images");
 
-        Intent intent = getIntent();
-        if (intent != null) {
-            userName = intent.getStringExtra("userName");
-        } else {
-            userName = "default name";
-        }
+
         messageListView = findViewById(R.id.messageListView);
         progressBar = findViewById(R.id.progressBar);
         sendMessageButtont = findViewById(R.id.sendMessageButtont);
@@ -115,6 +121,8 @@ public class ChatActivity extends AppCompatActivity {
                 message.setText(text);
                 message.setName(userName);
                 message.setImageUrl(null);
+                message.setRecipient(recipientUserId);
+                message.setSender(auth.getCurrentUser().getUid());
                 messagesDataBaseReference.push().setValue(message);
                 messageEditText.setText("");
             }
@@ -126,7 +134,7 @@ public class ChatActivity extends AppCompatActivity {
                 Intent intentToImage = new Intent(Intent.ACTION_GET_CONTENT);
                 intentToImage.setType("image/jpeg");
                 intentToImage.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
-                startActivityForResult(Intent.createChooser(intentToImage,"choose an image"), RC_IMAGE_PICKER);
+                startActivityForResult(Intent.createChooser(intentToImage, "choose an image"), RC_IMAGE_PICKER);
             }
         });
         usersChildEventListener = new ChildEventListener() {
@@ -164,7 +172,13 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Message message = snapshot.getValue(Message.class);
-                adapter.add(message);
+                if (message.getSender().equals(auth.getCurrentUser().getUid())
+                        && message.getRecipient().equals(recipientUserId)
+                        || message.getSender().equals(recipientUserId)
+                        && message.getRecipient().equals(auth.getCurrentUser().getUid())) {
+                    adapter.add(message)
+                    ;
+                }
             }
 
             @Override
@@ -194,7 +208,10 @@ public class ChatActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-        return true;
+        this.invalidateOptionsMenu();
+        MenuItem item = menu.findItem(R.id.add_user_photo);
+        item.setVisible(false);
+       return true;
     }
 
     @Override
@@ -214,7 +231,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_IMAGE_PICKER && resultCode == RESULT_OK) {
             Uri selectImageUri = data.getData();
-           final StorageReference imageRef = imageStorageRef.child(selectImageUri.getLastPathSegment());
+            final StorageReference imageRef = imageStorageRef.child(selectImageUri.getLastPathSegment());
             UploadTask uploadTask = imageRef.putFile(selectImageUri);
 
             Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
@@ -233,6 +250,8 @@ public class ChatActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
                         Message message = new Message();
+                        message.setRecipient(recipientUserId);
+                        message.setSender(auth.getCurrentUser().getUid());
                         message.setImageUrl(downloadUri.toString());
                         message.setName(userName);
                         messagesDataBaseReference.push().setValue(message);

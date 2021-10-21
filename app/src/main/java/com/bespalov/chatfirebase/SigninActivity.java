@@ -61,7 +61,7 @@ public class SigninActivity extends AppCompatActivity {
             }
         });
         if (mAuth.getCurrentUser() != null) {
-            startActivity(new Intent(SigninActivity.this, ChatActivity.class));
+            startActivity(new Intent(SigninActivity.this, UserListActivity.class));
         }
 
     }
@@ -81,7 +81,7 @@ public class SigninActivity extends AppCompatActivity {
                                     // Sign in success, update UI with the signed-in user's information
                                     Log.d(TAG, "signInWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
-                                    Intent intent = new Intent(SigninActivity.this, ChatActivity.class);
+                                    Intent intent = new Intent(SigninActivity.this, UserListActivity.class);
                                     intent.putExtra("userName", nameEditText.getText().toString().trim());
                                     startActivity(intent);
 //                                updateUI(user);
@@ -113,7 +113,7 @@ public class SigninActivity extends AppCompatActivity {
                                     Log.d(TAG, "createUserWithEmail:success");
                                     FirebaseUser user = mAuth.getCurrentUser();
                                     createUser(user);
-                                    Intent intent = new Intent(SigninActivity.this, ChatActivity.class);
+                                    Intent intent = new Intent(SigninActivity.this, UserListActivity.class);
                                     intent.putExtra("userName", nameEditText.getText().toString().trim());
                                     startActivity(intent);
 //                            updateUI(user);

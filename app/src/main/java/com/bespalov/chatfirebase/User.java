@@ -6,15 +6,25 @@ public class User {
     private String email;
     private String id;
     private int avatarMoskUpResource;
+    private String userPhotoUri;
 
     public User() {
     }
 
-    public User(String name, String email, String id, int avatarMoskUpResource) {
+    public User(String name, String email, String id, int avatarMoskUpResource, String userPhotoUri) {
         this.name = name;
         this.email = email;
         this.id = id;
         this.avatarMoskUpResource = avatarMoskUpResource;
+        this.userPhotoUri = userPhotoUri;
+    }
+
+    public String getUserPhotoUri() {
+        return userPhotoUri;
+    }
+
+    public void setUserPhotoUri(String userPhotoUri) {
+        this.userPhotoUri = userPhotoUri;
     }
 
     public String getName() {
