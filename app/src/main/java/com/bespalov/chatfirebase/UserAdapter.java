@@ -1,17 +1,25 @@
 package com.bespalov.chatfirebase;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+
 import java.util.ArrayList;
 
-public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
+
+public class UserAdapter  extends RecyclerView.Adapter<UserAdapter.UserViewHolder>  {
 
     private ArrayList<User> users;
     private OnUserClickListener listener;
@@ -40,10 +48,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-    User currentUser = users.get(position);
-    holder.avatarImageView.setImageResource(currentUser.getAvatarMoskUpResource());
-    holder.userNameTextView.setText(currentUser.getName());
+    public void onBindViewHolder(@NonNull UserViewHolder holder, int position)  {
+        User currentUser = users.get(position);
+        Boolean userHasAPhoto = currentUser.getUserPhotoUri() == null;
+        if (userHasAPhoto) {
+            Glide.with(holder.avatarImageView.getContext()).clear(holder.avatarImageView);
+            holder.avatarImageView.setImageResource(currentUser.getAvatarMoskUpResource());
+        } else {
+
+            Glide.with(holder.avatarImageView.getContext()).load(currentUser.getUserPhotoUri()).
+                    override(50, 50).into(holder.avatarImageView);
+        }
+        holder.userNameTextView.setText(currentUser.getName());
 
     }
 
