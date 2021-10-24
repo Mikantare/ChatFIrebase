@@ -1,5 +1,10 @@
 package com.bespalov.chatfirebase;
 
+import com.google.firebase.database.Exclude;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class User {
 
     private String name;
@@ -9,6 +14,18 @@ public class User {
     private String userPhotoUri;
 
     public User() {
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("name", name);
+        result.put("email", email);
+        result.put("id", id);
+        result.put("avatarMoskUpResource", avatarMoskUpResource);
+        result.put("userPhotoUri", userPhotoUri);
+
+        return result;
     }
 
     public User(String name, String email, String id, int avatarMoskUpResource, String userPhotoUri) {

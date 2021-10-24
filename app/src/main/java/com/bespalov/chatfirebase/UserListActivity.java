@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,11 +25,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserListActivity extends AppCompatActivity {
 
@@ -45,6 +49,9 @@ public class UserListActivity extends AppCompatActivity {
     private ChildEventListener usersChildEventListener;
     private String userName;
 
+    private User currentUser;
+    private String key;
+
     private ArrayList<User> usersArrayList = new ArrayList<>();
     private RecyclerView userRecyclerView;
     private UserAdapter userAdapter;
@@ -55,6 +62,8 @@ public class UserListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_list);
         auth = FirebaseAuth.getInstance();
+        storage = FirebaseStorage.getInstance();
+        imageStorageRef = storage.getReference().child("user_photo");
         attachUserDataBaseReferenceListener();
         buildRecyclerView();
         Intent intent = getIntent();
@@ -74,6 +83,8 @@ public class UserListActivity extends AppCompatActivity {
                         user.setAvatarMoskUpResource(R.drawable.ic_baseline_person_24);
                         usersArrayList.add(user);
                         userAdapter.notifyDataSetChanged();
+                    } else {
+                        key = snapshot.getKey();
                     }
                 }
 
@@ -105,7 +116,7 @@ public class UserListActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
-       return true;
+        return true;
     }
 
     @Override
@@ -150,13 +161,17 @@ public class UserListActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_IMAGE_PICKER && resultCode == RESULT_OK) {
-            Uri selectImageUri = data.getData();
-            final StorageReference imageRef = imageStorageRef.child(selectImageUri.getLastPathSegment());
-            UploadTask uploadTask = imageRef.putFile(selectImageUri);
+            Uri selectUserImageUri = data.getData();
+            Log.i("My", " " + key);
+            usersDataBaseReference.child(key).child("userPhotoUri").setValue(selectUserImageUri.toString());
+            final StorageReference imageRef = imageStorageRef.child(selectUserImageUri.getLastPathSegment());
+            UploadTask uploadTask = imageRef.putFile(selectUserImageUri);
+
             Task<Uri> urlTask = uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                 @Override
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
@@ -172,17 +187,7 @@ public class UserListActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
-                        FirebaseUser firebaseUser =  auth.getCurrentUser();
-//                        User user = new User(firebaseUser.getDisplayName(), firebaseUser.getEmail(), firebaseUser.getUid(), firebaseUser,)
-//                        usersDataBaseReference.child(user.getUid()).child("users").setValue(ValueVariable);
-//
-//
-//                        Message message = new Message();
-//                        message.setRecipient(recipientUserId);
-//                        message.setSender(auth.getCurrentUser().getUid());
-//                        message.setImageUrl(downloadUri.toString());
-//                        message.setName(userName);
-//                        messagesDataBaseReference.push().setValue(message);
+
                     } else {
                         // Handle failures
                         // ...
@@ -191,8 +196,6 @@ public class UserListActivity extends AppCompatActivity {
             });
 
         }
-
     }
-
 
 }
