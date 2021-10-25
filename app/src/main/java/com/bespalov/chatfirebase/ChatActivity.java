@@ -176,8 +176,7 @@ public class ChatActivity extends AppCompatActivity {
                         && message.getRecipient().equals(recipientUserId)
                         || message.getSender().equals(recipientUserId)
                         && message.getRecipient().equals(auth.getCurrentUser().getUid())) {
-                    adapter.add(message)
-                    ;
+                    adapter.add(message);
                 }
             }
 

@@ -167,8 +167,7 @@ public class UserListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_IMAGE_PICKER && resultCode == RESULT_OK) {
             Uri selectUserImageUri = data.getData();
-            Log.i("My", " " + key);
-            usersDataBaseReference.child(key).child("userPhotoUri").setValue(selectUserImageUri.toString());
+
             final StorageReference imageRef = imageStorageRef.child(selectUserImageUri.getLastPathSegment());
             UploadTask uploadTask = imageRef.putFile(selectUserImageUri);
 
@@ -187,6 +186,7 @@ public class UserListActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
+                        usersDataBaseReference.child(key).child("userPhotoUri").setValue(downloadUri.toString());
 
                     } else {
                         // Handle failures

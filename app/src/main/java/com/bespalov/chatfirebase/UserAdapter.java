@@ -1,6 +1,7 @@
 package com.bespalov.chatfirebase;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,13 +11,18 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.graphics.drawable.RoundedBitmapDrawable;
+import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 
 public class UserAdapter  extends RecyclerView.Adapter<UserAdapter.UserViewHolder>  {
@@ -52,14 +58,20 @@ public class UserAdapter  extends RecyclerView.Adapter<UserAdapter.UserViewHolde
         User currentUser = users.get(position);
         Boolean userHasAPhoto = currentUser.getUserPhotoUri() == null;
         if (userHasAPhoto) {
+            holder.avatarImageView.setVisibility(View.VISIBLE);
+            holder.avatarImageViewToUserPhoto.setVisibility(View.GONE);
             Glide.with(holder.avatarImageView.getContext()).clear(holder.avatarImageView);
             holder.avatarImageView.setImageResource(currentUser.getAvatarMoskUpResource());
         } else {
-
-            Glide.with(holder.avatarImageView.getContext()).load(currentUser.getUserPhotoUri()).
-                    override(50, 50).into(holder.avatarImageView);
-        }
+            holder.avatarImageView.setVisibility(View.GONE);
+            holder.avatarImageViewToUserPhoto.setVisibility(View.VISIBLE);
+            Picasso.get().load(currentUser.getUserPhotoUri()).
+                    placeholder(R.drawable
+                            .ic_baseline_insert_photo_24).
+                    fit().into(holder.avatarImageViewToUserPhoto);
+                    }
         holder.userNameTextView.setText(currentUser.getName());
+        ;
 
     }
 
@@ -71,12 +83,14 @@ public class UserAdapter  extends RecyclerView.Adapter<UserAdapter.UserViewHolde
     public static class UserViewHolder extends RecyclerView.ViewHolder {
 
         public ImageView avatarImageView;
+        public CircleImageView avatarImageViewToUserPhoto;
         public TextView userNameTextView;
 
         public UserViewHolder(@NonNull View itemView, final OnUserClickListener listener) {
             super(itemView);
             avatarImageView = itemView.findViewById(R.id.avatarImageView);
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
+            avatarImageViewToUserPhoto = itemView.findViewById(R.id.avatarImageViewToUserPhoto);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
