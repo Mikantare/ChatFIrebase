@@ -6,16 +6,26 @@ public class Message {
     private String imageUrl;
     private String sender;
     private String recipient;
+    private boolean isMine;
 
     public Message() {
     }
 
-    public Message(String text, String name, String imageUrl, String sender, String recipient) {
+    public Message(String text, String name, String imageUrl, String sender, String recipient, boolean isMine) {
         this.text = text;
         this.name = name;
         this.imageUrl = imageUrl;
         this.sender = sender;
         this.recipient = recipient;
+        this.isMine = isMine;
+    }
+
+    public boolean isMine() {
+        return isMine;
+    }
+
+    public void setMine(boolean mine) {
+        isMine = mine;
     }
 
     public String getSender() {

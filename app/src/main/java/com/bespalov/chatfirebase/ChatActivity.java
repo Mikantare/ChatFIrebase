@@ -62,6 +62,7 @@ public class ChatActivity extends AppCompatActivity {
     private StorageReference imageStorageRef;
 
     private String recipientUserId;
+    private String recipientUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +71,10 @@ public class ChatActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if (intent != null) {
             recipientUserId = intent.getStringExtra("recipientUserId");
+            recipientUserName = intent.getStringExtra("recipientUserName");
             userName = intent.getStringExtra("userName");
-        } else {
-            userName = "default name";
-        }
+                }
+        setTitle("Chat whith " + recipientUserName);
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         messagesDataBaseReference = database.getReference().child("messeges");
@@ -173,10 +174,13 @@ public class ChatActivity extends AppCompatActivity {
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 Message message = snapshot.getValue(Message.class);
                 if (message.getSender().equals(auth.getCurrentUser().getUid())
-                        && message.getRecipient().equals(recipientUserId)
-                        || message.getSender().equals(recipientUserId)
+                        && message.getRecipient().equals(recipientUserId)) {
+                    message.setMine(true);
+                    adapter.add(message);
+                } else if (message.getSender().equals(recipientUserId)
                         && message.getRecipient().equals(auth.getCurrentUser().getUid())) {
                     adapter.add(message);
+                    message.setMine(false);
                 }
             }
 
@@ -210,7 +214,7 @@ public class ChatActivity extends AppCompatActivity {
         this.invalidateOptionsMenu();
         MenuItem item = menu.findItem(R.id.add_user_photo);
         item.setVisible(false);
-       return true;
+        return true;
     }
 
     @Override

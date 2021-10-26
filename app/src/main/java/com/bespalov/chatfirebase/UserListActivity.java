@@ -156,6 +156,7 @@ public class UserListActivity extends AppCompatActivity {
     private void goToChat(int position) {
         Intent intent = new Intent(UserListActivity.this, ChatActivity.class);
         intent.putExtra("recipientUserId", usersArrayList.get(position).getId());
+        intent.putExtra("recipientUserName", usersArrayList.get(position).getName());
         intent.putExtra("userName", userName);
 
         startActivity(intent);
